@@ -1,16 +1,21 @@
+param(
+    [string]$RutaOperacion = "operacion.py" # Si no le dices nada, usa operacion.py por defecto
+)
 
 $solicitud = [guid]::NewGuid().ToString()
 $estado = Join-Path $PSScriptRoot "estado.txt"
 $salida = Join-Path $PSScriptRoot "resultado.txt"
 $orden = Join-Path $PSScriptRoot "ejecutar.txt"
 
-Set-Content -Path $orden -Value $solicitud
+# Guardamos el GUID en la línea 1 y la ruta del archivo en la línea 2
+$contenidoOrden = "$solicitud`n$RutaOperacion"
+Set-Content -Path $orden -Value $contenidoOrden
 
 while (!(Test-Path $estado) -or
-       (Get-Content $estado -Raw).Trim() -ne $solicitud) {
+       (Get-Content -Path $estado -TotalCount 1).Trim() -ne $solicitud) {
     Start-Sleep -Milliseconds 200
 }
 
-Write-Host "`n===== RESULTADOS DE operacion.py ====="
+Write-Host "`n===== RESULTADOS DE $RutaOperacion ====="
 Get-Content $salida
 Write-Host "===== FIN ====="
